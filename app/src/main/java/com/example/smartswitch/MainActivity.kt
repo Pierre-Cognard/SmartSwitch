@@ -18,8 +18,21 @@ import java.util.*
 import android.os.Handler
 import android.os.Looper
 import android.widget.Button
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Location
+import android.util.Log
+import androidx.core.app.ActivityCompat
+import com.google.android.gms.location.*
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.Polygon
+import org.locationtech.jts.geom.PrecisionModel
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationCallback: LocationCallback
 
     var currentPosition = 0
     var currentService = 0
@@ -41,6 +54,7 @@ class MainActivity : AppCompatActivity() {
         val useCellularButton = findViewById<Button>(R.id.useCellularButton)
         val GPSButton = findViewById<Button>(R.id.GPS_Button)
         val serviceButton = findViewById<Button>(R.id.Service_Button)
+        val actualiserButton = findViewById<Button>(R.id.actualisation_Button)
 
         val batteryLevel = getBatteryLevel(this)
         val batteryLevelTextView = findViewById<TextView>(R.id.batterie)
@@ -60,6 +74,9 @@ class MainActivity : AppCompatActivity() {
                 forceUseSpecificNetwork(this, network)
             }
         }
+
+
+
 
         GPSButton.setOnClickListener {
             val mBuilder = AlertDialog.Builder(this)
@@ -98,14 +115,90 @@ class MainActivity : AppCompatActivity() {
             mDialog.show()
         }
 
+        val geometryFactory = GeometryFactory(PrecisionModel(), 4326)
+
+        // Définir les coordonnées de chaque zone
+        val coordinatesAmphiAda = arrayOf(
+            Coordinate(4.888942850, 43.909750019),
+            Coordinate(4.888802034, 43.909597363),
+            Coordinate(4.888951567, 43.909536011),
+            Coordinate(4.889077631, 43.909687701),
+            Coordinate(4.888942850, 43.909750019)
+        )
+
+        val coordinatesAmphiBlaise = arrayOf(
+            Coordinate(4.889077631, 43.909687701),
+            Coordinate(4.889243258, 43.909615721),
+            Coordinate(4.889095736, 43.909443258),
+            Coordinate(4.888936815, 43.909513789),
+            Coordinate(4.889077631, 43.909687701)
+        )
+
+        val coordinatesAccueil = arrayOf(
+            Coordinate(4.889243258, 43.909615721),
+            Coordinate(4.889420981, 43.909531167),
+            Coordinate(4.889367337, 43.909469331),
+            Coordinate(4.889186958, 43.909549524),
+            Coordinate(4.889243258, 43.909615721)
+        )
+
+        // Créer les polygones pour chaque zone
+        val polygonAmphiAda = geometryFactory.createPolygon(coordinatesAmphiAda)
+        val polygonAmphiBlaise = geometryFactory.createPolygon(coordinatesAmphiBlaise)
+        val polygonAccueil = geometryFactory.createPolygon(coordinatesAccueil)
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(p0: LocationResult) {
+                p0 ?: return
+                for (location in p0.locations){
+                    // Mise à jour de la position
+                    Log.d("position", "Latitude : ${location.latitude}, Longitude : ${location.longitude}")
+                    val userLocation = geometryFactory.createPoint(Coordinate(location.longitude, location.latitude))
+
+                    // test de la position
+                    if (polygonAmphiAda.contains(userLocation)) {
+                        Log.d("position", "L'utilisateur est dans l'Amphi Ada")
+                    } else if (polygonAmphiBlaise.contains(userLocation)) {
+                        Log.d("position", "L'utilisateur est dans l'Amphi Blaise")
+                    } else if (polygonAccueil.contains(userLocation)) {
+                        Log.d("position", "L'utilisateur est à l'Accueil")
+                    } else {
+                        Log.d("position", "L'utilisateur n'est dans aucune zone définie")
+                    }
+
+                }
+            }
+        }
+        startLocationUpdates()
+
         setPosition(0)
         setService(0)
+    }
 
+    companion object {
+        private const val REQUEST_LOCATION_PERMISSION_CODE = 1
     }
 
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(updateTimeRunnable)
+    }
+
+    private fun startLocationUpdates() {
+        val locationRequest = LocationRequest.create().apply {
+            interval = 10000 // Interval de mise à jour en millisecondes.
+            fastestInterval = 5000
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+        // check de la permission
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_LOCATION_PERMISSION_CODE)
+            return
+        }
+        // Commencez à recevoir des mises à jour de la position
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
     }
 
     fun getBatteryLevel(context: Context): Float {

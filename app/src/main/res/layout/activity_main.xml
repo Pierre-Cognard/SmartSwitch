@@ -224,26 +224,27 @@
         android:id="@+id/useWifiButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Utiliser le Wi-Fi"
         android:backgroundTint="@color/blue_button"
+        android:text="Utiliser le Wi-Fi"
+        android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.833"
-        android:textAllCaps="false"/>
+        app:layout_constraintVertical_bias="0.862" />
 
     <Button
         android:id="@+id/useCellularButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Utiliser le réseau cellulaire"
         android:backgroundTint="@color/blue_button"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="Utiliser le réseau cellulaire"
         android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/useWifiButton" />
+        app:layout_constraintTop_toBottomOf="@id/useWifiButton"
+        app:layout_constraintVertical_bias="0.326" />
 
     <Button
         android:id="@+id/GPS_Button"
@@ -272,5 +273,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.67" />
+
+    <Button
+        android:id="@+id/actualisation_Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/blue_button"
+        android:text="Actualiser"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.157"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.762" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
