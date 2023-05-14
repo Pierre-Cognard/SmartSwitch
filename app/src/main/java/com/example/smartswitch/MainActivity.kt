@@ -4,6 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.BatteryManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -12,6 +16,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.os.Handler
 import android.os.Looper
+import android.widget.Button
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,6 +40,20 @@ class MainActivity : AppCompatActivity() {
 
         currentTimeTextView = findViewById(R.id.heure)
         handler.post(updateTimeRunnable)
+
+        val useWifiButton = findViewById<Button>(R.id.useWifiButton)
+        useWifiButton.setOnClickListener {
+            getSpecificNetwork(this, NetworkCapabilities.TRANSPORT_WIFI) { network ->
+                forceUseSpecificNetwork(this, network)
+            }
+        }
+
+        val useCellularButton = findViewById<Button>(R.id.useCellularButton)
+        useCellularButton.setOnClickListener {
+            getSpecificNetwork(this, NetworkCapabilities.TRANSPORT_CELLULAR) { network ->
+                forceUseSpecificNetwork(this, network)
+            }
+        }
 
     }
 
@@ -61,6 +80,34 @@ class MainActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
         return dateFormat.format(calendar.time)
+    }
+
+    fun getSpecificNetwork(context: Context, transportType: Int, callback: (Network?) -> Unit) {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkRequest = NetworkRequest.Builder()
+            .addTransportType(transportType)
+            .build()
+
+        val networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                callback(network)
+                connectivityManager.unregisterNetworkCallback(this)
+            }
+
+            override fun onUnavailable() {
+                super.onUnavailable()
+                callback(null)
+                connectivityManager.unregisterNetworkCallback(this)
+            }
+        }
+
+        connectivityManager.requestNetwork(networkRequest, networkCallback)
+    }
+
+    fun forceUseSpecificNetwork(context: Context, network: Network?) {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connectivityManager.bindProcessToNetwork(network)
     }
 }
 
