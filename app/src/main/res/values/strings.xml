@@ -1,3 +1,29 @@
 <resources>
     <string name="app_name">Smart Switch</string>
+    <string name="choisir">Choisir</string>
+    <string name="heure">Heure</string>
+    <string name="service">Service</string>
+    <string name="batterie">Batterie</string>
+    <string name="position">Position GPS</string>
+    <string name="reseau">Réseau conseillé</string>
+
+
+    <string-array name="positionsGPS">
+        <item>Amphi Ada</item>
+        <item>Amphi Blaise</item>
+        <item>Accueil</item>
+        <item>Cafétéria</item>
+        <item>Début couloir</item>
+        <item>Milieu couloir</item>
+        <item>Fin couloir</item>
+        <item>Début couloir (haut)</item>
+        <item>Milieu couloir (haut)</item>
+        <item>Fin couloir (haut)</item>
+    </string-array>
+
+    <string-array name="services">
+        <item>Mail</item>
+        <item>Streaming vidéo / Réseaux sociaux</item>
+        <item>Navigation web</item>
+    </string-array>
 </resources>
