@@ -23,7 +23,15 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import com.example.smartswitch.Zones.coordinatesAccueil
+import com.example.smartswitch.Zones.dictionnaireZones
+import com.example.smartswitch.Zones.geometryFactory
+import com.example.smartswitch.Zones.polygonAccueil
+import com.example.smartswitch.Zones.polygonAmphiAda
+import com.example.smartswitch.Zones.polygonAmphiBlaise
 import com.google.android.gms.location.*
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Polygon
@@ -115,38 +123,6 @@ class MainActivity : AppCompatActivity() {
             mDialog.show()
         }
 
-        val geometryFactory = GeometryFactory(PrecisionModel(), 4326)
-
-        // Définir les coordonnées de chaque zone
-        val coordinatesAmphiAda = arrayOf(
-            Coordinate(4.888942850, 43.909750019),
-            Coordinate(4.888802034, 43.909597363),
-            Coordinate(4.888951567, 43.909536011),
-            Coordinate(4.889077631, 43.909687701),
-            Coordinate(4.888942850, 43.909750019)
-        )
-
-        val coordinatesAmphiBlaise = arrayOf(
-            Coordinate(4.889077631, 43.909687701),
-            Coordinate(4.889243258, 43.909615721),
-            Coordinate(4.889095736, 43.909443258),
-            Coordinate(4.888936815, 43.909513789),
-            Coordinate(4.889077631, 43.909687701)
-        )
-
-        val coordinatesAccueil = arrayOf(
-            Coordinate(4.889243258, 43.909615721),
-            Coordinate(4.889420981, 43.909531167),
-            Coordinate(4.889367337, 43.909469331),
-            Coordinate(4.889186958, 43.909549524),
-            Coordinate(4.889243258, 43.909615721)
-        )
-
-        // Créer les polygones pour chaque zone
-        val polygonAmphiAda = geometryFactory.createPolygon(coordinatesAmphiAda)
-        val polygonAmphiBlaise = geometryFactory.createPolygon(coordinatesAmphiBlaise)
-        val polygonAccueil = geometryFactory.createPolygon(coordinatesAccueil)
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(p0: LocationResult) {
@@ -157,16 +133,13 @@ class MainActivity : AppCompatActivity() {
                     val userLocation = geometryFactory.createPoint(Coordinate(location.longitude, location.latitude))
 
                     // test de la position
-                    if (polygonAmphiAda.contains(userLocation)) {
-                        Log.d("position", "L'utilisateur est dans l'Amphi Ada")
-                    } else if (polygonAmphiBlaise.contains(userLocation)) {
-                        Log.d("position", "L'utilisateur est dans l'Amphi Blaise")
-                    } else if (polygonAccueil.contains(userLocation)) {
-                        Log.d("position", "L'utilisateur est à l'Accueil")
-                    } else {
-                        Log.d("position", "L'utilisateur n'est dans aucune zone définie")
+                    for ((id, polygon) in dictionnaireZones) {
+                        if (polygon.contains(userLocation)) {
+                            val zone = resources.getStringArray(R.array.positionsGPS)[id]
+                            Log.d("position", "L'utilisateur est dans la zone : $zone")
+                            setPosition(id)
+                        }
                     }
-
                 }
             }
         }
@@ -252,7 +225,7 @@ class MainActivity : AppCompatActivity() {
     private fun setPosition(pos: Int){
         val position = findViewById<TextView>(R.id.positionTextView)
         currentPosition = pos
-        System.out.println(resources.getStringArray(R.array.positionsGPS)[pos])
+        //System.out.println(resources.getStringArray(R.array.positionsGPS)[pos])
         position.text = resources.getStringArray(R.array.positionsGPS)[pos]
     }
 
