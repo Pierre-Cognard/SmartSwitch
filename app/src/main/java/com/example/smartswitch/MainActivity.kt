@@ -1,6 +1,5 @@
 package com.example.smartswitch
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
@@ -20,22 +19,17 @@ import android.os.Looper
 import android.widget.Button
 import android.Manifest
 import android.content.pm.PackageManager
-import android.location.Location
+import android.location.LocationManager
+import android.provider.Settings
 import android.util.Log
+import android.widget.Switch
 import androidx.core.app.ActivityCompat
-import com.example.smartswitch.Zones.coordinatesAccueil
 import com.example.smartswitch.Zones.dictionnaireZones
 import com.example.smartswitch.Zones.geometryFactory
-import com.example.smartswitch.Zones.polygonAccueil
-import com.example.smartswitch.Zones.polygonAmphiAda
-import com.example.smartswitch.Zones.polygonAmphiBlaise
 import com.google.android.gms.location.*
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import org.locationtech.jts.geom.Coordinate
-import org.locationtech.jts.geom.GeometryFactory
-import org.locationtech.jts.geom.Polygon
-import org.locationtech.jts.geom.PrecisionModel
 
 class MainActivity : AppCompatActivity() {
 
@@ -44,6 +38,7 @@ class MainActivity : AppCompatActivity() {
 
     var currentPosition = 0
     var currentService = 0
+
     private lateinit var currentTimeTextView: TextView
     private val handler = Handler(Looper.getMainLooper())
     private val updateTimeRunnable = object : Runnable {
@@ -52,8 +47,15 @@ class MainActivity : AppCompatActivity() {
             handler.postDelayed(this, 1000) // Mettre à jour chaque seconde (1000 ms)
         }
     }
+    private lateinit var batteryLevelTextView: TextView
+    private val updateBatteryRunnable = object : Runnable {
+        override fun run() {
+            val batteryLevel = getBatteryLevel()
+            batteryLevelTextView.text = "$batteryLevel%"
+            handler.postDelayed(this, 1000) // Mettre à jour chaque minute
+        }
+    }
 
-    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -62,11 +64,11 @@ class MainActivity : AppCompatActivity() {
         val useCellularButton = findViewById<Button>(R.id.useCellularButton)
         val GPSButton = findViewById<Button>(R.id.GPS_Button)
         val serviceButton = findViewById<Button>(R.id.Service_Button)
-        val actualiserButton = findViewById<Button>(R.id.actualisation_Button)
+        val mySwitch = findViewById<Switch>(R.id.switch1)
 
-        val batteryLevel = getBatteryLevel(this)
-        val batteryLevelTextView = findViewById<TextView>(R.id.batterie)
-        batteryLevelTextView.text = "$batteryLevel%"
+
+        batteryLevelTextView = findViewById(R.id.batterie)
+        handler.post(updateBatteryRunnable)
 
         currentTimeTextView = findViewById(R.id.heure)
         handler.post(updateTimeRunnable)
@@ -83,8 +85,22 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-
-
+        //mySwitch.isChecked = true
+        //GPSButton.isEnabled = false
+        mySwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                // Le switch est en position "On".
+                Log.d("Switch", "Le switch est en position On")
+                GPSTest()
+                startLocationUpdates()
+                GPSButton.isEnabled = false
+            } else {
+                // Le switch est en position "Off".
+                Log.d("Switch", "Le switch est en position Off")
+                stopLocationUpdates()
+                GPSButton.isEnabled = true
+            }
+        }
 
         GPSButton.setOnClickListener {
             val mBuilder = AlertDialog.Builder(this)
@@ -133,19 +149,23 @@ class MainActivity : AppCompatActivity() {
                     val userLocation = geometryFactory.createPoint(Coordinate(location.longitude, location.latitude))
 
                     // test de la position
-                    for ((id, polygon) in dictionnaireZones) {
-                        if (polygon.contains(userLocation)) {
-                            val zone = resources.getStringArray(R.array.positionsGPS)[id]
-                            Log.d("position", "L'utilisateur est dans la zone : $zone")
-                            setPosition(id)
-                        }
+                    val matchingZone = dictionnaireZones.entries.firstOrNull { it.value.contains(userLocation) }
+
+                    if (matchingZone != null) {
+                        val zone = resources.getStringArray(R.array.positionsGPS)[matchingZone.key]
+                        Log.d("position", "L'utilisateur est dans la zone : $zone")
+                        setPosition(matchingZone.key)
+                    } else {
+                        setPosition(10)
                     }
                 }
             }
         }
+
+        //GPSTest()
         startLocationUpdates()
 
-        setPosition(0)
+        //setPosition(0)
         setService(0)
     }
 
@@ -156,6 +176,22 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(updateTimeRunnable)
+    }
+
+    private fun GPSTest(){
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            Log.d("GPS Status", "GPS est désactivé")
+            setPosition(11)
+            AlertDialog.Builder(this)
+                .setMessage("Le GPS est désactivé. Voulez-vous l'activer?")
+                .setPositiveButton("Oui") { _, _ ->
+                    startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                }
+                .setNegativeButton("Non", null)
+                .show()
+        }
     }
 
     private fun startLocationUpdates() {
@@ -174,9 +210,13 @@ class MainActivity : AppCompatActivity() {
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
     }
 
-    fun getBatteryLevel(context: Context): Float {
+    private fun stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    fun getBatteryLevel(): Float {
         val batteryStatus: Intent? = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
-            context.registerReceiver(null, ifilter)
+            this.registerReceiver(null, ifilter)
         }
         val batteryLevel: Int = batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
         val batteryScale: Int = batteryStatus?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
