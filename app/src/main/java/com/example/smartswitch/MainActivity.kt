@@ -18,24 +18,31 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Button
 import android.Manifest
+import android.content.BroadcastReceiver
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.provider.Settings
 import android.util.Log
+import android.view.View
+import android.widget.ImageView
 import android.widget.Switch
 import androidx.core.app.ActivityCompat
+import com.example.smartswitch.Horaires.puissances
+import com.example.smartswitch.Horaires.ranges
 import com.example.smartswitch.Zones.dictionnaireZones
 import com.example.smartswitch.Zones.geometryFactory
 import com.google.android.gms.location.*
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import org.locationtech.jts.geom.Coordinate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
-
     var currentPosition = 0
     var currentService = 0
 
@@ -43,16 +50,65 @@ class MainActivity : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private val updateTimeRunnable = object : Runnable {
         override fun run() {
-            currentTimeTextView.text = getCurrentTime()
+            val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+            currentTimeTextView.text = LocalTime.now().format(formatter)
             handler.postDelayed(this, 1000) // Mettre à jour chaque seconde (1000 ms)
         }
     }
     private lateinit var batteryLevelTextView: TextView
+    
     private val updateBatteryRunnable = object : Runnable {
         override fun run() {
             val batteryLevel = getBatteryLevel()
             batteryLevelTextView.text = "$batteryLevel%"
             handler.postDelayed(this, 1000) // Mettre à jour chaque minute
+        }
+    }
+
+    private lateinit var reseau: TextView
+    private val updateReseauRunnable = object : Runnable {
+        override fun run() {
+            val batteryLevel = getBatteryLevel()
+            if (batteryLevel >= 20 || isCharging()){
+                System.out.println("Batterie OK")
+                if (currentService == 1){
+                    System.out.println("Service gourmant")
+
+                    //val currentTime = LocalTime.now()
+                    val currentTime = LocalTime.of(20, 30)
+
+                    val matchingRange = ranges.firstOrNull { !currentTime.isBefore(it.first) && !currentTime.isAfter(it.second) }
+
+                    if (matchingRange != null) {
+                        val (ratioStart, ratioEnd) = calculateRatios(currentTime, matchingRange!!.first, matchingRange.second)
+                        println("L'heure actuelle (${currentTime}) est entre ${matchingRange.first} ($ratioStart) et ${matchingRange.second} ($ratioEnd).")
+
+                        if (currentPosition != -1){
+                            val firstValue = puissances[matchingRange.first]?.get(currentPosition)?.times(ratioStart)
+                            val secondValue = puissances[matchingRange.second]?.get(currentPosition)?.times(ratioEnd)
+
+                            val result = firstValue?.plus(secondValue!!)
+
+                            System.out.println("Résultat: $firstValue * $secondValue = $result")
+                        }
+
+                    } else {
+                        println("L'heure actuelle (${currentTime}) ne se trouve dans aucune des plages horaires définies.")
+                    }
+                }
+            }
+            else{
+                System.out.println("Batterie pas OK")
+            }
+            handler.postDelayed(this, 5000) // Mettre à jour chaque minute
+        }
+    }
+    private lateinit var chargingImageView: ImageView
+    private val chargingReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val status: Int = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+            val isCharging: Boolean = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
+            chargingImageView.visibility = if (isCharging) View.VISIBLE else View.INVISIBLE
         }
     }
 
@@ -66,12 +122,16 @@ class MainActivity : AppCompatActivity() {
         val serviceButton = findViewById<Button>(R.id.Service_Button)
         val mySwitch = findViewById<Switch>(R.id.switch1)
 
+        chargingImageView = findViewById(R.id.charging)
 
         batteryLevelTextView = findViewById(R.id.batterie)
         handler.post(updateBatteryRunnable)
 
         currentTimeTextView = findViewById(R.id.heure)
         handler.post(updateTimeRunnable)
+
+        reseau = findViewById(R.id.reseau)
+        handler.post(updateReseauRunnable)
 
         useWifiButton.setOnClickListener {
             getSpecificNetwork(this, NetworkCapabilities.TRANSPORT_WIFI) { network ->
@@ -156,17 +216,24 @@ class MainActivity : AppCompatActivity() {
                         Log.d("position", "L'utilisateur est dans la zone : $zone")
                         setPosition(matchingZone.key)
                     } else {
-                        setPosition(10)
+                        val position = findViewById<TextView>(R.id.positionTextView)
+                        position.text = "Zone inconnue"
+                        currentPosition = -1
                     }
                 }
             }
         }
 
         //GPSTest()
-        startLocationUpdates()
+        //startLocationUpdates()
 
-        //setPosition(0)
-        setService(0)
+        setPosition(0)
+        setService(1)
+
+
+
+
+
     }
 
     companion object {
@@ -178,12 +245,25 @@ class MainActivity : AppCompatActivity() {
         handler.removeCallbacks(updateTimeRunnable)
     }
 
+    override fun onResume() {
+        super.onResume()
+        val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+        registerReceiver(chargingReceiver, intentFilter)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        unregisterReceiver(chargingReceiver)
+    }
+
     private fun GPSTest(){
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             Log.d("GPS Status", "GPS est désactivé")
-            setPosition(11)
+            val position = findViewById<TextView>(R.id.positionTextView)
+            position.text = "GPS désactivé"
+            currentPosition = -1
             AlertDialog.Builder(this)
                 .setMessage("Le GPS est désactivé. Voulez-vous l'activer?")
                 .setPositiveButton("Oui") { _, _ ->
@@ -228,11 +308,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getCurrentTime(): String {
-        val calendar = Calendar.getInstance()
-        val dateFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-        return dateFormat.format(calendar.time)
-    }
+
 
     fun getSpecificNetwork(context: Context, transportType: Int, callback: (Network?) -> Unit) {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -274,6 +350,24 @@ class MainActivity : AppCompatActivity() {
         currentService = serv
         System.out.println(resources.getStringArray(R.array.services)[serv])
         service.text = resources.getStringArray(R.array.services)[serv]
+    }
+
+    private fun isCharging(): Boolean {
+        val batteryStatus: Intent? = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
+            this.registerReceiver(null, ifilter)
+        }
+        val status: Int = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+        return status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
+    }
+
+    fun calculateRatios(currentTime: LocalTime, startTime: LocalTime, endTime: LocalTime): Pair<Double, Double> {
+        val totalMinutes = ChronoUnit.MINUTES.between(startTime, endTime).toDouble()
+        val elapsedMinutes = ChronoUnit.MINUTES.between(startTime, currentTime).toDouble()
+
+        val ratioStart = (totalMinutes - elapsedMinutes) / totalMinutes
+        val ratioEnd = elapsedMinutes / totalMinutes
+
+        return Pair(ratioStart, ratioEnd)
     }
 }
 

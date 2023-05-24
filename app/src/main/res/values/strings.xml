@@ -16,11 +16,6 @@
         <item>Début couloir</item>
         <item>Milieu couloir</item>
         <item>Fin couloir</item>
-        <item>Début couloir (haut)</item>
-        <item>Milieu couloir (haut)</item>
-        <item>Fin couloir (haut)</item>
-        <item>Zone inconnue</item>
-        <item>GPS désactivé</item>
     </string-array>
 
     <string-array name="services">

@@ -38,7 +38,7 @@
 
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/reseau"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
@@ -276,17 +276,30 @@
 
     <Switch
         android:id="@+id/switch1"
-        android:layout_width="82dp"
-        android:layout_height="36dp"
-        android:text="Auto"
+        android:layout_width="115dp"
+        android:layout_height="39dp"
+        android:text="GPS Auto"
         android:textColor="#FFFFFF"
         android:thumbTint="@color/switch_thumb_color_selector"
         android:trackTint="@color/switch_track_color_selector"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.17"
+        app:layout_constraintHorizontal_bias="0.131"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.726" />
+        app:layout_constraintVertical_bias="0.719"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    <ImageView
+        android:id="@+id/charging"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.361"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.36"
+        app:srcCompat="@drawable/ic_battery" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
