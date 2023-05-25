@@ -6,6 +6,10 @@
     <string name="batterie">Batterie</string>
     <string name="position">Position GPS</string>
     <string name="reseau">Réseau conseillé</string>
+    <string name="zone">Zone inconnue</string>
+    <string name="GPS">GPS désactivé</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="cellulaire">Cellulaire</string>
 
 
     <string-array name="positionsGPS">
@@ -19,8 +23,8 @@
     </string-array>
 
     <string-array name="services">
-        <item>Mail</item>
-        <item>Streaming vidéo / Réseaux sociaux</item>
+        <item>Consultation de mails</item>
         <item>Navigation web</item>
+        <item>Streaming vidéo / Réseaux sociaux</item>
     </string-array>
 </resources>
