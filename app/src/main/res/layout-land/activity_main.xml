@@ -17,16 +17,17 @@
         android:textStyle="bold|italic"
         app:layout_constraintBottom_toTopOf="@+id/textView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.499"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.355" />
+        app:layout_constraintVertical_bias="0.8" />
 
     <TextView
         android:id="@+id/reseau"
         android:layout_width="300dp"
         android:layout_height="50dp"
         android:gravity="center"
+        android:text="TextView"
         android:textColor="@color/white"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="@+id/box5"
@@ -60,10 +61,10 @@
         android:background="@drawable/box"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.147" />
+        app:layout_constraintVertical_bias="0.218" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -78,18 +79,21 @@
         app:layout_constraintTop_toTopOf="@+id/textView"
         app:layout_constraintVertical_bias="0.39" />
 
-    <View
-        android:id="@+id/box2"
+    <TextView
+        android:id="@+id/textView7"
         android:layout_width="160dp"
-        android:layout_height="80dp"
-        android:layout_marginEnd="15dp"
-        android:background="@drawable/box"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.387" />
+        android:layout_height="40dp"
+        android:background="@drawable/rectangle"
+        android:padding="10dp"
+        android:text="@string/service"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/box4"
+        app:layout_constraintEnd_toEndOf="@+id/box4"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/box4"
+        app:layout_constraintTop_toTopOf="@+id/box4"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/textView5"
@@ -107,87 +111,16 @@
         app:layout_constraintTop_toTopOf="@+id/box2"
         app:layout_constraintVertical_bias="0.0" />
 
-    <TextView
-        android:id="@+id/heure"
-        android:layout_width="160dp"
-        android:layout_height="40dp"
-        android:gravity="center"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="@+id/box2"
-        app:layout_constraintEnd_toEndOf="@+id/box2"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/box2"
-        app:layout_constraintTop_toTopOf="@+id/box2"
-        app:layout_constraintVertical_bias="1.0" />
-
-    <View
-        android:id="@+id/box3"
-        android:layout_width="160dp"
-        android:layout_height="80dp"
-        android:layout_marginStart="15dp"
-        android:background="@drawable/box"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.545" />
-
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="160dp"
-        android:layout_height="40dp"
-        android:background="@drawable/rectangle"
-        android:padding="10dp"
-        android:text="@string/position"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="@+id/box3"
-        app:layout_constraintEnd_toEndOf="@+id/box3"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/box3"
-        app:layout_constraintTop_toTopOf="@+id/box3"
-        app:layout_constraintVertical_bias="0.0"
-        tools:ignore="TextContrastCheck" />
-
-    <TextView
-        android:id="@+id/positionTextView"
-        android:layout_width="160dp"
-        android:layout_height="40dp"
-        android:gravity="center"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="@+id/box3"
-        app:layout_constraintEnd_toEndOf="@+id/box3"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/box3"
-        app:layout_constraintTop_toTopOf="@+id/textView6"
-        app:layout_constraintVertical_bias="1.0" />
-
-    <Button
-        android:id="@+id/GPS_Button"
-        android:layout_width="160dp"
-        android:layout_height="45dp"
-        android:backgroundTint="@color/blue_button"
-        android:text="@string/choisir"
-        android:textAllCaps="false"
-        app:layout_constraintEnd_toEndOf="@+id/box3"
-        app:layout_constraintHorizontal_bias="0.123"
-        app:layout_constraintStart_toStartOf="@+id/box3"
-        app:layout_constraintTop_toBottomOf="@+id/box3" />
-
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/switch1"
-        android:layout_width="115dp"
-        android:layout_height="39dp"
-        android:text="GPS Auto"
-        android:textColor="#FFFFFF"
-        app:layout_constraintEnd_toEndOf="@+id/box3"
-        app:layout_constraintHorizontal_bias="0.488"
-        app:layout_constraintStart_toStartOf="@+id/box3"
-        app:layout_constraintTop_toBottomOf="@+id/GPS_Button"
-        app:thumbTint="@color/switch_thumb_color_selector"
-        app:trackTint="@color/switch_track_color_selector"
-        tools:ignore="UseSwitchCompatOrMaterialXml" />
+    <ImageView
+        android:id="@+id/charging"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/textView4"
+        app:layout_constraintEnd_toEndOf="@+id/textView4"
+        app:layout_constraintHorizontal_bias="0.926"
+        app:layout_constraintStart_toStartOf="@+id/textView4"
+        app:layout_constraintTop_toTopOf="@+id/textView4"
+        app:srcCompat="@drawable/ic_battery" />
 
     <TextView
         android:id="@+id/batterie"
@@ -218,58 +151,138 @@
         app:layout_constraintTop_toTopOf="@+id/box1"
         app:layout_constraintVertical_bias="0.0" />
 
-    <ImageView
-        android:id="@+id/charging"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/textView4"
-        app:layout_constraintEnd_toEndOf="@+id/textView4"
-        app:layout_constraintHorizontal_bias="0.926"
-        app:layout_constraintStart_toStartOf="@+id/textView4"
-        app:layout_constraintTop_toTopOf="@+id/textView4"
-        app:srcCompat="@drawable/ic_battery" />
+    <Button
+        android:id="@+id/GPS_Button"
+        android:layout_width="160dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="@color/blue_button"
+        android:text="@string/choisir"
+        android:textAllCaps="false"
+        app:layout_constraintEnd_toEndOf="@+id/box3"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/box3"
+        app:layout_constraintTop_toBottomOf="@+id/box3" />
+
+    <Button
+        android:id="@+id/Service_Button"
+        android:layout_width="160dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="@color/blue_button"
+        android:text="@string/choisir"
+        android:textAllCaps="false"
+        app:layout_constraintEnd_toEndOf="@+id/box4"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/box4"
+        app:layout_constraintTop_toBottomOf="@+id/box4" />
+
+    <View
+        android:id="@+id/box2"
+        android:layout_width="160dp"
+        android:layout_height="80dp"
+        android:background="@drawable/box"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.971"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.646" />
+
+    <TextView
+        android:id="@+id/positionTextView"
+        android:layout_width="160dp"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/box3"
+        app:layout_constraintEnd_toEndOf="@+id/box3"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/box3"
+        app:layout_constraintTop_toTopOf="@+id/textView6"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switch1"
+        android:layout_width="115dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="4dp"
+        android:text="GPS Auto"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="@+id/box3"
+        app:layout_constraintHorizontal_bias="0.488"
+        app:layout_constraintStart_toStartOf="@+id/box3"
+        app:layout_constraintTop_toBottomOf="@+id/GPS_Button"
+        app:thumbTint="@color/switch_thumb_color_selector"
+        app:trackTint="@color/switch_track_color_selector"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    <View
+        android:id="@+id/box4"
+        android:layout_width="160dp"
+        android:layout_height="80dp"
+        android:background="@drawable/box"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.661"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.646" />
 
     <View
         android:id="@+id/box1"
+        android:layout_width="160dp"
+        android:layout_height="80dp"
+        android:background="@drawable/box"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.043"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.646" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="160dp"
+        android:layout_height="40dp"
+        android:background="@drawable/rectangle"
+        android:padding="10dp"
+        android:text="@string/position"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/box3"
+        app:layout_constraintEnd_toEndOf="@+id/box3"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/box3"
+        app:layout_constraintTop_toTopOf="@+id/box3"
+        app:layout_constraintVertical_bias="0.0"
+        tools:ignore="TextContrastCheck" />
+
+    <TextView
+        android:id="@+id/heure"
+        android:layout_width="160dp"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/box2"
+        app:layout_constraintEnd_toEndOf="@+id/box2"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/box2"
+        app:layout_constraintTop_toTopOf="@+id/box2"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <View
+        android:id="@+id/box3"
         android:layout_width="160dp"
         android:layout_height="80dp"
         android:layout_marginStart="15dp"
         android:background="@drawable/box"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.332"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.387" />
-
-    <View
-        android:id="@+id/box4"
-        android:layout_width="160dp"
-        android:layout_height="80dp"
-        android:layout_marginEnd="15dp"
-        android:background="@drawable/box"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.545" />
-
-    <TextView
-        android:id="@+id/textView7"
-        android:layout_width="160dp"
-        android:layout_height="40dp"
-        android:background="@drawable/rectangle"
-        android:padding="10dp"
-        android:text="@string/service"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="@+id/box4"
-        app:layout_constraintEnd_toEndOf="@+id/box4"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/box4"
-        app:layout_constraintTop_toTopOf="@+id/box4"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.646" />
 
     <TextView
         android:id="@+id/serviceTextView"
@@ -283,18 +296,6 @@
         app:layout_constraintStart_toStartOf="@+id/box4"
         app:layout_constraintTop_toTopOf="@+id/textView7"
         app:layout_constraintVertical_bias="1.0" />
-
-    <Button
-        android:id="@+id/Service_Button"
-        android:layout_width="160dp"
-        android:layout_height="45dp"
-        android:backgroundTint="@color/blue_button"
-        android:text="@string/choisir"
-        android:textAllCaps="false"
-        app:layout_constraintEnd_toEndOf="@+id/box4"
-        app:layout_constraintHorizontal_bias="0.936"
-        app:layout_constraintStart_toStartOf="@+id/box4"
-        app:layout_constraintTop_toBottomOf="@+id/box4" />
 
     <ImageView
         android:id="@+id/batteryCircle"

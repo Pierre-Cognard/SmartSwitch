@@ -8,24 +8,18 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
-import android.os.BatteryManager
 import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.widget.TextView
 import java.text.SimpleDateFormat
 import java.util.*
-import android.os.Handler
-import android.os.Looper
-import android.widget.Button
 import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.os.*
 import android.provider.Settings
 import android.util.Log
 import android.view.View
-import android.widget.ImageView
-import android.widget.Switch
+import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
 import com.example.smartswitch.Horaires.puissances
@@ -48,7 +42,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var GPSCircle: ImageView
     private lateinit var timeCircle: ImageView
-    private lateinit var serviceCircle: ImageView
     private lateinit var batteryCircle: ImageView
 
     private lateinit var batteryLevelTextView: TextView
@@ -57,6 +50,7 @@ class MainActivity : AppCompatActivity() {
 
     var currentPosition = 0
     var currentService = 0
+    var search = false
 
     val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
     private val handler = Handler(Looper.getMainLooper())
@@ -69,21 +63,18 @@ class MainActivity : AppCompatActivity() {
 
             val matchingRange = ranges.firstOrNull { !currentTime.isBefore(it.first) && !currentTime.isAfter(it.second) }
 
-            if (matchingRange != null) {
-                timeCircle.setImageResource(R.drawable.ic_circle_green)
-            } else {
-                timeCircle.setImageResource(R.drawable.ic_circle_red)
-            }
+            if (matchingRange != null) green(timeCircle)
+            else red(timeCircle)
             handler.postDelayed(this, 1000) // Mettre à jour chaque seconde (1000 ms)
         }
     }
 
     private val updateReseauRunnable = object : Runnable {
         override fun run() {
+            if (check()) startTimer()
             val batteryLevel = getBatteryLevel()
             if (batteryLevel >= 20 || isCharging()){
                 System.out.println("Batterie OK")
-
                 val currentTime = LocalTime.now()
                 //val currentTime = LocalTime.of(20, 30)
 
@@ -100,7 +91,6 @@ class MainActivity : AppCompatActivity() {
                         val result = firstValue?.plus(secondValue!!)
 
                         System.out.println("Résultat: $firstValue * $secondValue = $result")
-
                         if (currentService == 0 || currentService == 1){
                             if (result!! < -70) reseau.text = getString(R.string.cellulaire)
                             else reseau.text = getString(R.string.wifi)
@@ -128,8 +118,8 @@ class MainActivity : AppCompatActivity() {
             val level: Int = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
             System.out.println("Batterie : $level")
             batteryLevelTextView.text = "$level %"
-            if (level >= 20 || isCharging()) batteryCircle.setImageResource(R.drawable.ic_circle_green)
-            else batteryCircle.setImageResource(R.drawable.ic_circle_red)
+            if (level >= 20 || isCharging()) green(batteryCircle)
+            else red(batteryCircle)
         }
     }
 
@@ -220,7 +210,6 @@ class MainActivity : AppCompatActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(p0: LocationResult) {
-                p0
                 for (location in p0.locations){
                     // Mise à jour de la position
                     Log.d("position", "Latitude : ${location.latitude}, Longitude : ${location.longitude}")
@@ -237,13 +226,15 @@ class MainActivity : AppCompatActivity() {
                         val position = findViewById<TextView>(R.id.positionTextView)
                         position.text = getString(R.string.zone)
                         currentPosition = -1
-                        GPSCircle.setImageResource(R.drawable.ic_circle_red)
+                        red(GPSCircle)
                     }
                 }
             }
         }
         setPosition(0)
         setService(1)
+
+
     }
 
 
@@ -269,7 +260,7 @@ class MainActivity : AppCompatActivity() {
 
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             Log.d("GPS Status", "GPS est désactivé")
-            GPSCircle.setImageResource(R.drawable.ic_circle_red)
+            red(GPSCircle)
             val position = findViewById<TextView>(R.id.positionTextView)
             position.text = getString(R.string.GPS)
             currentPosition = -1
@@ -303,7 +294,7 @@ class MainActivity : AppCompatActivity() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
-    fun getBatteryLevel(): Float {
+    private fun getBatteryLevel(): Float {
         val batteryStatus: Intent? = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
             this.registerReceiver(null, ifilter)
         }
@@ -322,7 +313,7 @@ class MainActivity : AppCompatActivity() {
         currentPosition = pos
         //System.out.println(resources.getStringArray(R.array.positionsGPS)[pos])
         position.text = resources.getStringArray(R.array.positionsGPS)[pos]
-        GPSCircle.setImageResource(R.drawable.ic_circle_green)
+        green(GPSCircle)
     }
 
     private fun setService(serv: Int){
@@ -338,13 +329,46 @@ class MainActivity : AppCompatActivity() {
         return status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
     }
 
-    fun calculateRatios(currentTime: LocalTime, startTime: LocalTime, endTime: LocalTime): Pair<Double, Double> {
+    private fun calculateRatios(currentTime: LocalTime, startTime: LocalTime, endTime: LocalTime): Pair<Double, Double> {
         val totalMinutes = ChronoUnit.MINUTES.between(startTime, endTime).toDouble()
         val elapsedMinutes = ChronoUnit.MINUTES.between(startTime, currentTime).toDouble()
-
         val ratioStart = (totalMinutes - elapsedMinutes) / totalMinutes
         val ratioEnd = elapsedMinutes / totalMinutes
-
         return Pair(ratioStart, ratioEnd)
+    }
+
+    private fun red (element: ImageView){
+        reseau.text = ""
+        element.setImageResource(R.drawable.ic_circle_red)
+        element.tag = "red"
+    }
+
+    private fun green (element: ImageView){
+        element.setImageResource(R.drawable.ic_circle_green)
+        element.tag = "green"
+    }
+
+
+    private fun startTimer() {
+        val totalSeconds = 5
+        val ticksPerSecond = 100 // 1000 millisecondes divisées par 10 millisecondes
+        val progressBar = findViewById<ProgressBar>(R.id.progressBar)
+        progressBar.max = totalSeconds * ticksPerSecond
+
+        val timer = object: CountDownTimer((totalSeconds * 1000).toLong(), 10) {
+            override fun onTick(millisUntilFinished: Long) {
+                val ticksPassed = (totalSeconds * 1000 - millisUntilFinished).toInt() / 10
+                progressBar.progress = ticksPassed
+            }
+
+            override fun onFinish() {
+                progressBar.progress = 0
+            }
+        }
+        timer.start()
+    }
+
+    private fun check(): Boolean {
+        return GPSCircle.tag == "green" && batteryCircle.tag == "green" && timeCircle.tag == "green"
     }
 }
