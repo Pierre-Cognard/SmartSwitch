@@ -181,13 +181,12 @@
         android:id="@+id/box2"
         android:layout_width="160dp"
         android:layout_height="80dp"
+        android:layout_marginEnd="16dp"
         android:background="@drawable/box"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.971"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.646" />
+        app:layout_constraintTop_toBottomOf="@+id/reseau"
+        app:layout_constraintVertical_bias="0.282" />
 
     <TextView
         android:id="@+id/positionTextView"
@@ -223,11 +222,11 @@
         android:layout_height="80dp"
         android:background="@drawable/box"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.661"
+        app:layout_constraintEnd_toStartOf="@+id/box2"
+        app:layout_constraintHorizontal_bias="0.954"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.646" />
+        app:layout_constraintTop_toBottomOf="@+id/reseau"
+        app:layout_constraintVertical_bias="0.282" />
 
     <View
         android:id="@+id/box1"
@@ -235,11 +234,11 @@
         android:layout_height="80dp"
         android:background="@drawable/box"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.043"
+        app:layout_constraintEnd_toStartOf="@+id/box3"
+        app:layout_constraintHorizontal_bias="0.702"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.646" />
+        app:layout_constraintTop_toBottomOf="@+id/reseau"
+        app:layout_constraintVertical_bias="0.282" />
 
     <TextView
         android:id="@+id/textView6"
@@ -278,11 +277,11 @@
         android:layout_marginStart="15dp"
         android:background="@drawable/box"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.332"
+        app:layout_constraintEnd_toStartOf="@+id/box4"
+        app:layout_constraintHorizontal_bias="0.95"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.646" />
+        app:layout_constraintTop_toBottomOf="@+id/reseau"
+        app:layout_constraintVertical_bias="0.282" />
 
     <TextView
         android:id="@+id/serviceTextView"

@@ -4,14 +4,9 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import androidx.appcompat.app.AppCompatActivity
-import java.text.SimpleDateFormat
-import java.util.*
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.pm.PackageManager
 import android.location.LocationManager
@@ -29,7 +24,6 @@ import com.example.smartswitch.Zones.geometryFactory
 import com.google.android.gms.location.*
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
-import com.google.android.material.switchmaterial.SwitchMaterial
 import org.locationtech.jts.geom.Coordinate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -47,10 +41,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var batteryLevelTextView: TextView
     private lateinit var chargingImageView: ImageView
     private lateinit var reseau: TextView
+    private lateinit var progressBar: ProgressBar
 
     var currentPosition = 0
     var currentService = 0
-    var search = false
 
     val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
     private val handler = Handler(Looper.getMainLooper())
@@ -74,14 +68,14 @@ class MainActivity : AppCompatActivity() {
             if (check()) startTimer()
             val batteryLevel = getBatteryLevel()
             if (batteryLevel >= 20 || isCharging()){
-                System.out.println("Batterie OK")
+                println("Batterie OK")
                 val currentTime = LocalTime.now()
                 //val currentTime = LocalTime.of(20, 30)
 
                 val matchingRange = ranges.firstOrNull { !currentTime.isBefore(it.first) && !currentTime.isAfter(it.second) }
 
                 if (matchingRange != null) {
-                    val (ratioStart, ratioEnd) = calculateRatios(currentTime, matchingRange!!.first, matchingRange.second)
+                    val (ratioStart, ratioEnd) = calculateRatios(currentTime, matchingRange.first, matchingRange.second)
                     println("L'heure actuelle (${currentTime.format(formatter)}) est entre ${matchingRange.first} ($ratioStart) et ${matchingRange.second} ($ratioEnd).")
 
                     if (currentPosition != -1){
@@ -90,7 +84,7 @@ class MainActivity : AppCompatActivity() {
 
                         val result = firstValue?.plus(secondValue!!)
 
-                        System.out.println("Résultat: $firstValue * $secondValue = $result")
+                        println("Résultat: $firstValue * $secondValue = $result")
                         if (currentService == 0 || currentService == 1){
                             if (result!! < -70) reseau.text = getString(R.string.cellulaire)
                             else reseau.text = getString(R.string.wifi)
@@ -107,16 +101,17 @@ class MainActivity : AppCompatActivity() {
 
             }
             else{
-                System.out.println("Batterie pas OK")
+                println("Batterie pas OK")
             }
             handler.postDelayed(this, 5000) // Mettre à jour chaque minute
         }
     }
 
     private val batteryLevelReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SetTextI18n")
         override fun onReceive(context: Context, intent: Intent) {
             val level: Int = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
-            System.out.println("Batterie : $level")
+            println("Batterie : $level")
             batteryLevelTextView.text = "$level %"
             if (level >= 20 || isCharging()) green(batteryCircle)
             else red(batteryCircle)
@@ -143,6 +138,7 @@ class MainActivity : AppCompatActivity() {
         val serviceButton = findViewById<Button>(R.id.Service_Button)
         val mySwitch = findViewById<SwitchCompat>(R.id.switch1)
 
+        progressBar = findViewById(R.id.progressBar)
         batteryCircle = findViewById(R.id.batteryCircle)
         timeCircle = findViewById(R.id.timeCircle)
         GPSCircle = findViewById(R.id.GPSCircle)
@@ -319,7 +315,7 @@ class MainActivity : AppCompatActivity() {
     private fun setService(serv: Int){
         val service = findViewById<TextView>(R.id.serviceTextView)
         currentService = serv
-        System.out.println(resources.getStringArray(R.array.services)[serv])
+        println(resources.getStringArray(R.array.services)[serv])
         service.text = resources.getStringArray(R.array.services)[serv]
     }
 
@@ -352,13 +348,13 @@ class MainActivity : AppCompatActivity() {
     private fun startTimer() {
         val totalSeconds = 5
         val ticksPerSecond = 100 // 1000 millisecondes divisées par 10 millisecondes
-        val progressBar = findViewById<ProgressBar>(R.id.progressBar)
         progressBar.max = totalSeconds * ticksPerSecond
 
         val timer = object: CountDownTimer((totalSeconds * 1000).toLong(), 10) {
             override fun onTick(millisUntilFinished: Long) {
                 val ticksPassed = (totalSeconds * 1000 - millisUntilFinished).toInt() / 10
-                progressBar.progress = ticksPassed
+                if (check()) progressBar.progress = ticksPassed
+                else progressBar.progress = 0
             }
 
             override fun onFinish() {
